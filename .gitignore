@@ -1,0 +1,9 @@
+.vscode/
+.idea/
+*.iml
+*.ipr
+*.iws
+
+conductor/
+
+.DS_Store
