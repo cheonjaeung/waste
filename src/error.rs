@@ -5,7 +5,7 @@ use thiserror::Error;
 #[derive(Error, Debug)]
 pub enum WasteError {
     /// The file or directory was not found.
-    #[error("File or directory not found: {0}")]
+    #[error("File or directory not found: '{0}'")]
     NotFound(PathBuf),
 
     /// Permission was denied when accessing the file or directory.

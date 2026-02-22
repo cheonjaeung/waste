@@ -4,6 +4,7 @@ mod platform;
 mod trash;
 
 use crate::cli::Cli;
+use crate::error::WasteError;
 use crate::platform::CurrentPlatformManager;
 use crate::trash::TrashManager;
 use clap::Parser;
@@ -13,17 +14,15 @@ fn main() {
     let mut exit_code = 0;
 
     for path in cli.paths {
-        if path.symlink_metadata().is_err() {
-            eprintln!("Error: File or directory not found: {:?}", path);
+        if !path.exists() && !path.is_symlink() {
+            eprintln!("[ERROR] {}", WasteError::NotFound(path));
             exit_code = 1;
             continue;
         }
 
         if let Err(e) = CurrentPlatformManager::move_to_trash(&path) {
-            eprintln!("Error moving {:?} to trash: {}", path, e);
+            eprintln!("[ERROR] {}", e);
             exit_code = 1;
-        } else {
-            println!("Moved to trash: {:?}", path);
         }
     }
 
