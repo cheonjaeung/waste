@@ -11,4 +11,8 @@ pub struct Cli {
     /// Files or directories to move to trash
     #[arg(required = true, value_name = "PATH")]
     pub paths: Vec<PathBuf>,
+
+    /// Show more information about the operation
+    #[arg(short = 'v', long = "verbose")]
+    pub verbose: bool,
 }

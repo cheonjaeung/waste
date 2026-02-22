@@ -23,6 +23,8 @@ fn main() {
         if let Err(e) = CurrentPlatformManager::move_to_trash(&path) {
             eprintln!("[ERROR] {}", e);
             exit_code = 1;
+        } else if cli.verbose {
+            println!("Successfully moved '{}' to the trash.", path.display());
         }
     }
 
