@@ -10,7 +10,7 @@ pub enum WasteError {
     PermissionDenied(PathBuf),
 
     #[error("Platform specific error: {0}")]
-    PlatformSpecific(String),
+    PlatformError(String),
 
     #[error("Metadata error: {0}")]
     MetadataError(String),
