@@ -5,9 +5,9 @@ use std::path::Path;
 /// Linux implementation of the TrashManager.
 ///
 /// This manager follows the FreeDesktop.org Trash specification to move files to the system trash.
-pub struct LinuxTrashManager;
+pub struct FreeDesktopTrashManager;
 
-impl TrashManager for LinuxTrashManager {
+impl TrashManager for FreeDesktopTrashManager {
     /// Moves a file or directory to the Linux trash.
     fn move_to_trash(_path: &Path) -> Result<(), WasteError> {
         unimplemented!("Linux trash implementation is coming soon")
