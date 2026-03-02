@@ -9,6 +9,7 @@ pub enum WasteError {
     NotFound(PathBuf),
 
     /// Permission was denied when accessing the file or directory.
+    #[allow(dead_code)]
     #[error("Permission denied: {0}")]
     PermissionDenied(PathBuf),
 
