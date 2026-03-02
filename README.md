@@ -1,9 +1,32 @@
 # Waste
 
-A simple command line tool to move files and directories to the trash (macOS and Linux) or recycle bin (Windows).
+A simple command line tool to move files and directories to the trash,
+Uses native APIs or standard specifications to move files to the system's default trash or recycle bin.
 
-This tool supports macOS, Windows and FreeDesktop.org compliant Linux distributions.
-It uses native APIs or standard specifications to move files to the system's default trash or recycle bin.
+> [!NOTE]
+> This tool currently supports only macOS.
+> Windows and Linux are planned.
+
+## Usage
+
+Waste is a simple command line tool.
+You can remove a file or directory just like this.
+
+```shell
+waste <PATH>
+```
+
+You can move multiple files or directories to the trash.
+
+```shell
+waste uselessfile1.txt uselessfile2.txt uselessdir
+```
+
+Print help for more information.
+
+```shell
+waste --help
+```
 
 ## License
 
