@@ -7,6 +7,4 @@ debug/
 *.ipr
 *.iws
 
-conductor/
-
 .DS_Store
