@@ -28,6 +28,17 @@ Print help for more information.
 waste --help
 ```
 
+## Installation
+
+### Homebrew
+
+You can install waste using Homebrew:
+
+```shell
+brew tap cheonjaeung/tap
+brew install waste
+```
+
 ## License
 
 This project is licensed under the Apache License 2.0.
