@@ -6,6 +6,25 @@ use crate::trash::TrashManager;
 /// Runs the main application, taking CLI arguments and moving specified paths to the trash.
 /// Returns the exit code.
 pub fn run(cli: Cli) -> i32 {
+    if cli.list {
+        match CurrentPlatformManager::list_trash() {
+            Ok(items) => {
+                if items.is_empty() {
+                    println!("Trash is empty.");
+                } else {
+                    for item in items {
+                        println!("{} ({})", item.name, item.path.display());
+                    }
+                }
+                return 0;
+            }
+            Err(e) => {
+                eprintln!("[ERROR] {}", e);
+                return 1;
+            }
+        }
+    }
+
     let mut exit_code = 0;
 
     for path in cli.paths {
@@ -25,7 +44,6 @@ pub fn run(cli: Cli) -> i32 {
 
     exit_code
 }
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -45,6 +63,7 @@ mod tests {
 
         let cli = Cli {
             paths: vec![file_path.clone()],
+            list: false,
             verbose: false,
         };
 
@@ -60,6 +79,7 @@ mod tests {
         let nonexistent = PathBuf::from("/tmp/waste_test_run_with_nonexistent_file");
         let cli = Cli {
             paths: vec![nonexistent],
+            list: false,
             verbose: false,
         };
 
@@ -85,6 +105,7 @@ mod tests {
 
         let cli = Cli {
             paths: vec![file1_path.clone(), file2_path.clone(), file3_path.clone()],
+            list: false,
             verbose: false,
         };
 
@@ -117,6 +138,7 @@ mod tests {
                 file2_path.clone(),
                 nonexistent_path.clone(),
             ],
+            list: false,
             verbose: false,
         };
 
@@ -142,6 +164,7 @@ mod tests {
 
         let cli = Cli {
             paths: vec![dir_path.clone()],
+            list: false,
             verbose: true,
         };
 
@@ -157,6 +180,7 @@ mod tests {
         let nonexistent_dir = PathBuf::from("/tmp/test_run_with_nonexistent_directory");
         let cli = Cli {
             paths: vec![nonexistent_dir],
+            list: false,
             verbose: false,
         };
 
@@ -183,6 +207,7 @@ mod tests {
 
         let cli = Cli {
             paths: vec![link_path.clone()],
+            list: false,
             verbose: false,
         };
 

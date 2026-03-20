@@ -1,7 +1,11 @@
 use crate::error::WasteError;
+use crate::trash::TrashItem;
 use crate::trash::TrashManager;
-use objc2_foundation::{NSFileManager, NSString, NSURL};
-use std::path::Path;
+use objc2_foundation::{
+    NSFileManager, NSSearchPathDirectory, NSSearchPathDomainMask,
+    NSSearchPathForDirectoriesInDomains, NSString, NSURL,
+};
+use std::path::{Path, PathBuf};
 
 /// macOS implementation of the TrashManager.
 ///
@@ -31,6 +35,44 @@ impl TrashManager for MacosTrashManager {
                 )))
             }
         }
+    }
+
+    /// Lists the items currently in the macOS trash.
+    ///
+    /// Note: This function requires "Full Disk Access" permissions to access the system Trash directory.
+    /// If the application lacks these permissions, it will return a `WasteError::PermissionDenied` error.
+    fn list_trash() -> Result<Vec<TrashItem>, WasteError> {
+        let paths = NSSearchPathForDirectoriesInDomains(
+            NSSearchPathDirectory::TrashDirectory,
+            NSSearchPathDomainMask::UserDomainMask,
+            true,
+        );
+
+        let trash_path_str = paths
+            .firstObject()
+            .ok_or_else(|| WasteError::PlatformError("Could not locate Trash directory".into()))?;
+
+        let trash_dir = PathBuf::from(trash_path_str.to_string());
+
+        let mut items = Vec::new();
+        if trash_dir.exists() && trash_dir.is_dir() {
+            match std::fs::read_dir(&trash_dir) {
+                Ok(entries) => {
+                    for entry in entries {
+                        let entry = entry.map_err(WasteError::Io)?;
+                        let path = entry.path();
+                        let name = entry.file_name().to_string_lossy().into_owned();
+                        items.push(TrashItem { name, path });
+                    }
+                }
+                Err(e) if e.kind() == std::io::ErrorKind::PermissionDenied => {
+                    return Err(WasteError::PermissionDenied(trash_dir));
+                }
+                Err(e) => return Err(WasteError::Io(e)),
+            }
+        }
+
+        Ok(items)
     }
 }
 
