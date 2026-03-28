@@ -18,6 +18,37 @@ pub fn run(cli: Cli) -> i32 {
                 }
                 return 0;
             }
+            Err(WasteError::PermissionDenied(_)) => {
+                #[cfg(target_os = "macos")]
+                {
+                    eprintln!(
+                        "[ERROR] Terminal lacks 'Full Disk Access' permission to view the Trash."
+                    );
+                    eprint!("Would you like to open System Settings to grant permission? [Y/n]: ");
+                    use std::io::Write;
+                    let _ = std::io::stdout().flush();
+
+                    let mut input = String::new();
+                    if std::io::stdin().read_line(&mut input).is_ok() {
+                        let answer = input.trim().to_lowercase();
+                        if answer == "y" || answer == "yes" || answer.is_empty() {
+                            let _ = std::process::Command::new("open")
+                                .arg("x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles")
+                                .status();
+                            println!(
+                                "Opened System Settings. Please grant Full Disk Access to your terminal, then restart the terminal and try again."
+                            );
+                        } else {
+                            println!("Operation cancelled. Finishing without permissions.");
+                        }
+                    }
+                }
+                #[cfg(not(target_os = "macos"))]
+                {
+                    eprintln!("[ERROR] Permission denied.");
+                }
+                return 1;
+            }
             Err(e) => {
                 eprintln!("[ERROR] {}", e);
                 return 1;
