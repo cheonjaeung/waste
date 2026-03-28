@@ -7,6 +7,7 @@ pub struct TrashItem {
     /// The name of the item.
     pub name: String,
     /// The path of the item inside the trash directory (if available).
+    #[allow(dead_code)]
     pub path: PathBuf,
 }
 

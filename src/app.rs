@@ -13,7 +13,7 @@ pub fn run(cli: Cli) -> i32 {
                     println!("Trash is empty.");
                 } else {
                     for item in items {
-                        println!("{} ({})", item.name, item.path.display());
+                        println!("{}", item.name);
                     }
                 }
                 return 0;
