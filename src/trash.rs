@@ -1,5 +1,15 @@
 use crate::error::WasteError;
-use std::path::Path;
+use std::path::{Path, PathBuf};
+
+/// Information about an item in the trash.
+#[derive(Debug, Clone)]
+pub struct TrashItem {
+    /// The name of the item.
+    pub name: String,
+    /// The path of the item inside the trash directory (if available).
+    #[allow(dead_code)]
+    pub path: PathBuf,
+}
 
 /// A trait that defines the interface for moving files and directories to the system trash.
 ///
@@ -16,4 +26,11 @@ pub trait TrashManager {
     ///
     /// Returns a `WasteError` when the operation failed.
     fn move_to_trash(path: &Path) -> Result<(), WasteError>;
+
+    /// Lists the items currently in the system's trash or recycle bin.
+    ///
+    /// # Errors
+    ///
+    /// Returns a `WasteError` when the operation failed.
+    fn list_trash() -> Result<Vec<TrashItem>, WasteError>;
 }

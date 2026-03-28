@@ -1,4 +1,5 @@
 use crate::error::WasteError;
+use crate::trash::TrashItem;
 use crate::trash::TrashManager;
 use std::path::Path;
 
@@ -11,5 +12,10 @@ impl TrashManager for WindowsTrashManager {
     /// Moves a file or directory to the Windows Recycle Bin.
     fn move_to_trash(_path: &Path) -> Result<(), WasteError> {
         unimplemented!("Windows trash implementation is coming soon")
+    }
+
+    /// Lists the items currently in the system's trash or recycle bin.
+    fn list_trash() -> Result<Vec<TrashItem>, WasteError> {
+        unimplemented!("Windows trash list implementation is coming soon")
     }
 }

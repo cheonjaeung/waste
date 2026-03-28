@@ -6,6 +6,56 @@ use crate::trash::TrashManager;
 /// Runs the main application, taking CLI arguments and moving specified paths to the trash.
 /// Returns the exit code.
 pub fn run(cli: Cli) -> i32 {
+    if cli.list {
+        match CurrentPlatformManager::list_trash() {
+            Ok(items) => {
+                if items.is_empty() {
+                    println!("Trash is empty.");
+                } else {
+                    for item in items {
+                        println!("{}", item.name);
+                    }
+                }
+                return 0;
+            }
+            Err(WasteError::PermissionDenied(_)) => {
+                #[cfg(target_os = "macos")]
+                {
+                    eprintln!(
+                        "[ERROR] Terminal lacks 'Full Disk Access' permission to view the Trash."
+                    );
+                    eprint!("Would you like to open System Settings to grant permission? [Y/n]: ");
+                    use std::io::Write;
+                    let _ = std::io::stdout().flush();
+
+                    let mut input = String::new();
+                    if std::io::stdin().read_line(&mut input).is_ok() {
+                        let answer = input.trim().to_lowercase();
+                        if answer == "y" || answer == "yes" || answer.is_empty() {
+                            let _ = std::process::Command::new("open")
+                                .arg("x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles")
+                                .status();
+                            println!(
+                                "Opened System Settings. Please grant Full Disk Access to your terminal, then restart the terminal and try again."
+                            );
+                        } else {
+                            println!("Operation cancelled. Finishing without permissions.");
+                        }
+                    }
+                }
+                #[cfg(not(target_os = "macos"))]
+                {
+                    eprintln!("[ERROR] Permission denied.");
+                }
+                return 1;
+            }
+            Err(e) => {
+                eprintln!("[ERROR] {}", e);
+                return 1;
+            }
+        }
+    }
+
     let mut exit_code = 0;
 
     for path in cli.paths {
@@ -25,7 +75,6 @@ pub fn run(cli: Cli) -> i32 {
 
     exit_code
 }
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -45,6 +94,7 @@ mod tests {
 
         let cli = Cli {
             paths: vec![file_path.clone()],
+            list: false,
             verbose: false,
         };
 
@@ -60,6 +110,7 @@ mod tests {
         let nonexistent = PathBuf::from("/tmp/waste_test_run_with_nonexistent_file");
         let cli = Cli {
             paths: vec![nonexistent],
+            list: false,
             verbose: false,
         };
 
@@ -85,6 +136,7 @@ mod tests {
 
         let cli = Cli {
             paths: vec![file1_path.clone(), file2_path.clone(), file3_path.clone()],
+            list: false,
             verbose: false,
         };
 
@@ -117,6 +169,7 @@ mod tests {
                 file2_path.clone(),
                 nonexistent_path.clone(),
             ],
+            list: false,
             verbose: false,
         };
 
@@ -142,6 +195,7 @@ mod tests {
 
         let cli = Cli {
             paths: vec![dir_path.clone()],
+            list: false,
             verbose: true,
         };
 
@@ -157,6 +211,7 @@ mod tests {
         let nonexistent_dir = PathBuf::from("/tmp/test_run_with_nonexistent_directory");
         let cli = Cli {
             paths: vec![nonexistent_dir],
+            list: false,
             verbose: false,
         };
 
@@ -183,6 +238,7 @@ mod tests {
 
         let cli = Cli {
             paths: vec![link_path.clone()],
+            list: false,
             verbose: false,
         };
 
